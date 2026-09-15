@@ -265,6 +265,18 @@
                             </div>
                         </div>
 
+                        <!-- Tip Note for NET HELPMSG 3521 -->
+                        <div class="p-2.5 sm:p-3 bg-amber-950/40 border border-amber-800/60 rounded-lg text-xs text-amber-200 flex items-start gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 shrink-0"></i>
+                            <span><b>"Service is not started" (NET HELPMSG 3521)</b> ဟု ပြပါက BITS Service ပိတ်ထားပြီးသားဖြစ်၍ အဆင်ပြေပါသည်။ ကျန်ရှိသော Command များကို ဆက်လက် ရိုက်ထည့်သွားပါ။</span>
+                        </div>
+
+                        <!-- Tip Note for Access is Denied -->
+                        <div class="p-2.5 sm:p-3 bg-rose-950/40 border border-rose-800/60 rounded-lg text-xs text-rose-200 flex items-start gap-2">
+                            <i class="fa-solid fa-lock text-rose-400 mt-0.5 shrink-0"></i>
+                            <span><b>"Access is denied"</b> ဟု ပြပါက Command Prompt ကို Administrator အဖြစ် ဖွင့်ထားကြောင်း စစ်ဆေးပါ။ ထို့နောက် <code class="text-rose-300">net stop cryptSvc</code> နှင့် <code class="text-rose-300">net stop msiserver</code> ကိုပါ ပိတ်ပြီးမှ နာမည် ပြန်ပြောင်းပါ။</span>
+                        </div>
+
                         <p class="text-xs sm:text-sm text-slate-400">
                             ၎င်းနောက် Command Prompt ကို ပိတ်ပြီး ကွန်ပျူတာကို <b>Restart</b> ပြန်လုပ်ပါ။
                         </p>
