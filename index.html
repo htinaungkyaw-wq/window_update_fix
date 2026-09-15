@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="my" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0">
+    <title>Windows Update Fix Guide</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Burmese & Monospace -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        burmese: ['"Noto Sans Myanmar"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans Myanmar', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #090d16;
+            color: #cbd5e1;
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Mobile specific adjustments */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Book container styling */
+        .book-container {
+            background: linear-gradient(145deg, #0e1526 0%, #0a0e19 100%);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 
+                        0 0 1px 1px rgba(255, 255, 255, 0.05) inset;
+        }
+
+        /* Book Spine Line (visible on tablet/desktop) */
+        .book-spine-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, rgba(99, 102, 241, 0.3) 0%, rgba(16, 185, 129, 0.2) 50%, transparent 100%);
+        }
+
+        /* Custom mobile scrollbar for code blocks */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 5px;
+            width: 5px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #090d16;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        /* Touch target sizing for buttons */
+        .touch-btn {
+            min-height: 42px;
+            min-width: 42px;
+        }
+
+        /* Smooth check animation */
+        .step-checkbox:checked + span {
+            color: #34d399;
+            font-weight: 600;
+        }
+        .step-card.completed {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(15, 23, 42, 0.7);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-3 sm:py-8 px-2 sm:px-6 lg:px-8 selection:bg-indigo-500 selection:text-white">
+
+    <div class="max-w-3xl mx-auto w-full">
+        
+        <!-- Book Page Wrapper -->
+        <div class="book-container rounded-2xl p-3.5 sm:p-8 md:p-10 my-2 sm:my-4 relative overflow-hidden border border-slate-800/80">
+            
+            <!-- Book Spine Line -->
+            <div class="book-spine-line hidden sm:block"></div>
+
+            <header class="border-b border-slate-800/80 pb-5 sm:pb-8 mb-5 sm:mb-8 sm:pl-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3.5">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-950/90 text-indigo-300 border border-indigo-800/60 self-start">
+                        <i class="fa-solid fa-book-bookmark text-indigo-400"></i>
+                        <span>Windows 11 Troubleshooting Manual</span>
+                    </div>
+                    
+                    <!-- Progress Tracker Badge -->
+                    <div class="text-xs font-mono px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 self-start sm:self-auto flex items-center gap-1.5">
+                        <span id="progressText" class="text-emerald-400 font-bold">0/4</span> <span>ပြီးစီးပါပြီ</span>
+                    </div>
+                </div>
+
+                <h1 class="text-lg sm:text-2xl md:text-3xl font-bold font-burmese text-white tracking-wide leading-snug sm:leading-snug mb-2.5">
+                    Windows Update 'Pending Restart' ပြဿနာ ဖြေရှင်းနည်း လမ်းညွှန်
+                </h1>
+                
+                <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                    Windows Update လုပ်ရာတွင် Restart မပြီးနိုင်ခြင်း သို့မဟုတ် အလုပ်မလုပ်တော့ဘဲ ရပ်တန့်နေပါက အောက်ပါ အဆင့်များကို တစ်ဆင့်ချင်းစီ စနစ်တကျ လိုက်ပါပြုလုပ်ပါ။
+                </p>
+
+                <!-- Dynamic Progress Bar -->
+                <div class="w-full bg-slate-950 h-2 rounded-full mt-4 sm:mt-6 overflow-hidden border border-slate-800/80">
+                    <div id="progressBar" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+                </div>
+            </header>
+
+            <main class="space-y-4 sm:space-y-6 sm:pl-6">
+
+                <!-- STEP 1 -->
+                <section class="step-card bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 sm:p-5 transition-all duration-300 hover:border-slate-700" id="step1">
+                    <div class="flex items-start justify-between gap-2.5 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="step-number w-8 h-8 rounded-lg bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 flex items-center justify-center font-bold text-sm shrink-0">
+                                ၁
+                            </span>
+                            <div>
+                                <span class="text-[10px] sm:text-xs font-semibold text-indigo-400 uppercase tracking-wider block">အခြေခံအဆင့်</span>
+                                <h2 class="text-sm sm:text-lg font-bold text-slate-100 leading-snug">Restart ပြုလုပ်ပါ</h2>
+                            </div>
+                        </div>
+
+                        <!-- Touch-friendly checkbox area -->
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 touch-btn">
+                            <input type="checkbox" onchange="toggleStep(this)" class="step-checkbox rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 w-4 h-4 cursor-pointer">
+                            <span class="text-xs font-medium text-slate-300 select-none">ပြီးပါပြီ</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-2.5 text-slate-300 text-xs sm:text-sm leading-relaxed">
+                        <p>
+                            မီးပြာရောင် <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-600 text-white whitespace-nowrap"><i class="fa-solid fa-rotate-right mr-1"></i> Restart now</span> ခလုတ်ကို နှိပ်ပြီး ကွန်ပျူတာကို ပြန်စတင်ပါ။
+                        </p>
+                        <div class="p-2.5 sm:p-3 bg-slate-950/70 rounded-lg border border-slate-800/80 text-xs text-slate-400 flex items-start gap-2">
+                            <i class="fa-solid fa-circle-info text-indigo-400 mt-0.5 shrink-0"></i>
+                            <span>စက်ပြန်ပွင့်လာပါက <b>Settings &gt; Windows Update</b> ထဲသို့ ပြန်ဝင်ပြီး Update ပြီးဆုံးသွားခြင်း ရှိ/မရှိ စစ်ဆေးပါ။</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 2 -->
+                <section class="step-card bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 sm:p-5 transition-all duration-300 hover:border-slate-700" id="step2">
+                    <div class="flex items-start justify-between gap-2.5 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="step-number w-8 h-8 rounded-lg bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 flex items-center justify-center font-bold text-sm shrink-0">
+                                ၂
+                            </span>
+                            <div>
+                                <span class="text-[10px] sm:text-xs font-semibold text-indigo-400 uppercase tracking-wider block">အလိုအလျောက် စစ်ဆေးခြင်း</span>
+                                <h2 class="text-sm sm:text-lg font-bold text-slate-100 leading-snug">Windows Update Troubleshooter ကို Run ပါ</h2>
+                            </div>
+                        </div>
+
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 touch-btn">
+                            <input type="checkbox" onchange="toggleStep(this)" class="step-checkbox rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 w-4 h-4 cursor-pointer">
+                            <span class="text-xs font-medium text-slate-300 select-none">ပြီးပါပြီ</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-2.5 text-slate-300 text-xs sm:text-sm leading-relaxed">
+                        <p>
+                            Windows ၏ အလိုအလျောက် ပြဿနာရှာဖွေ ပြင်ဆင်ပေးသည့် စနစ်ကို အသုံးပြု၍ စစ်ဆေးပါ -
+                        </p>
+                        
+                        <!-- Simple Breadcrumb List -->
+                        <div class="bg-slate-950 p-2.5 sm:p-3 rounded-lg border border-slate-800/90 text-xs font-mono text-slate-300 space-y-1 overflow-x-auto custom-scrollbar">
+                            <div class="text-indigo-400 font-sans font-semibold mb-1 text-[11px] uppercase">လမ်းကြောင်း :</div>
+                            <div class="flex flex-wrap items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs min-w-max">
+                                <span class="px-2 py-0.5 bg-slate-900 rounded border border-slate-800">Settings</span>
+                                <i class="fa-solid fa-angle-right text-slate-600 text-[10px]"></i>
+                                <span class="px-2 py-0.5 bg-slate-900 rounded border border-slate-800">System</span>
+                                <i class="fa-solid fa-angle-right text-slate-600 text-[10px]"></i>
+                                <span class="px-2 py-0.5 bg-slate-900 rounded border border-slate-800">Troubleshoot</span>
+                                <i class="fa-solid fa-angle-right text-slate-600 text-[10px]"></i>
+                                <span class="px-2 py-0.5 bg-slate-900 rounded border border-slate-800">Other troubleshooters</span>
+                            </div>
+                        </div>
+
+                        <p class="text-xs sm:text-sm text-slate-400">
+                            <b>Windows Update</b> ဘေးရှိ <span class="px-2 py-0.5 bg-slate-800 text-slate-200 rounded font-semibold text-xs border border-slate-700">Run</span> ခလုတ်ကို နှိပ်၍ အမှားများကို အလိုအလျောက် ပြင်ဆင်ခွင့်ပြုပါ။
+                        </p>
+                    </div>
+                </section>
+
+                <!-- STEP 3 -->
+                <section class="step-card bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 sm:p-5 transition-all duration-300 hover:border-slate-700" id="step3">
+                    <div class="flex items-start justify-between gap-2.5 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="step-number w-8 h-8 rounded-lg bg-amber-950/60 text-amber-400 border border-amber-800/60 flex items-center justify-center font-bold text-sm shrink-0">
+                                ၃
+                            </span>
+                            <div>
+                                <span class="text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider block">အတတ်နိုင်ဆုံး ထိရောက်သောအဆင့်</span>
+                                <h2 class="text-sm sm:text-lg font-bold text-slate-100 leading-snug">Windows Update Cache ကို ရှင်းလင်းပါ</h2>
+                            </div>
+                        </div>
+
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 touch-btn">
+                            <input type="checkbox" onchange="toggleStep(this)" class="step-checkbox rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 w-4 h-4 cursor-pointer">
+                            <span class="text-xs font-medium text-slate-300 select-none">ပြီးပါပြီ</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-3 text-slate-300 text-xs sm:text-sm leading-relaxed">
+                        <p>
+                            <b>Start menu</b> တွင် <code class="bg-slate-950 px-2 py-0.5 rounded text-indigo-400 font-mono text-xs border border-slate-800">cmd</code> ဟု ရိုက်ရှာပြီး <b>Run as administrator</b> ကို နှိပ်၍ ဖွင့်ပါ။
+                        </p>
+                        <p class="text-xs text-slate-400">
+                            ပေါ်လာသော Command Prompt တွင် အောက်ပါ command များကို တစ်ကြောင်းချင်းစီ ကူးယူ၍ ရိုက်ထည့်ပြီး Enter ခေါက်ပါ -
+                        </p>
+
+                        <div class="bg-slate-950 rounded-lg p-3 border border-slate-800/90 font-mono text-xs space-y-2">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-800/80 text-[11px] font-sans text-slate-400">
+                                <span class="truncate pr-1">Administrator: Command Prompt</span>
+                                <button onclick="copyAllCommands()" class="hover:text-white bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-800/80 px-2 py-1 rounded text-[11px] transition-colors flex items-center gap-1 shrink-0 active:scale-95 touch-btn">
+                                    <i class="fa-regular fa-copy text-indigo-400"></i> အားလုံး Copy
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between group p-1.5 rounded hover:bg-slate-900/80 transition-colors gap-2">
+                                <span class="text-emerald-400 font-mono text-xs break-all">net stop wuauserv</span>
+                                <button onclick="copyText('net stop wuauserv', this)" class="text-xs text-slate-400 hover:text-slate-100 px-2 py-1 bg-slate-900 rounded border border-slate-800 shrink-0 active:scale-95">Copy</button>
+                            </div>
+
+                            <div class="flex items-center justify-between group p-1.5 rounded hover:bg-slate-900/80 transition-colors gap-2">
+                                <span class="text-emerald-400 font-mono text-xs break-all">net stop bits</span>
+                                <button onclick="copyText('net stop bits', this)" class="text-xs text-slate-400 hover:text-slate-100 px-2 py-1 bg-slate-900 rounded border border-slate-800 shrink-0 active:scale-95">Copy</button>
+                            </div>
+
+                            <div class="flex items-center justify-between group p-1.5 rounded hover:bg-slate-900/80 transition-colors gap-2">
+                                <span class="text-amber-300 font-mono text-xs break-all leading-tight">ren C:\Windows\SoftwareDistribution SoftwareDistribution.old</span>
+                                <button onclick="copyText('ren C:\\Windows\\SoftwareDistribution SoftwareDistribution.old', this)" class="text-xs text-slate-400 hover:text-slate-100 px-2 py-1 bg-slate-900 rounded border border-slate-800 shrink-0 active:scale-95">Copy</button>
+                            </div>
+
+                            <div class="flex items-center justify-between group p-1.5 rounded hover:bg-slate-900/80 transition-colors gap-2">
+                                <span class="text-emerald-400 font-mono text-xs break-all">net start wuauserv</span>
+                                <button onclick="copyText('net start wuauserv', this)" class="text-xs text-slate-400 hover:text-slate-100 px-2 py-1 bg-slate-900 rounded border border-slate-800 shrink-0 active:scale-95">Copy</button>
+                            </div>
+
+                            <div class="flex items-center justify-between group p-1.5 rounded hover:bg-slate-900/80 transition-colors gap-2">
+                                <span class="text-emerald-400 font-mono text-xs break-all">net start bits</span>
+                                <button onclick="copyText('net start bits', this)" class="text-xs text-slate-400 hover:text-slate-100 px-2 py-1 bg-slate-900 rounded border border-slate-800 shrink-0 active:scale-95">Copy</button>
+                            </div>
+                        </div>
+
+                        <p class="text-xs sm:text-sm text-slate-400">
+                            ၎င်းနောက် Command Prompt ကို ပိတ်ပြီး ကွန်ပျူတာကို <b>Restart</b> ပြန်လုပ်ပါ။
+                        </p>
+                    </div>
+                </section>
+
+                <!-- STEP 4 -->
+                <section class="step-card bg-slate-900/60 border border-slate-800/80 rounded-xl p-3.5 sm:p-5 transition-all duration-300 hover:border-slate-700" id="step4">
+                    <div class="flex items-start justify-between gap-2.5 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="step-number w-8 h-8 rounded-lg bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 flex items-center justify-center font-bold text-sm shrink-0">
+                                ၄
+                            </span>
+                            <div>
+                                <span class="text-[10px] sm:text-xs font-semibold text-indigo-400 uppercase tracking-wider block">စနစ်ဖိုင် အမှားပြင်ခြင်း</span>
+                                <h2 class="text-sm sm:text-lg font-bold text-slate-100 leading-snug">System Files များကို စစ်ဆေးပါ</h2>
+                            </div>
+                        </div>
+
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer bg-slate-950 hover:bg-slate-800 border border-slate-800 px-2.5 py-1.5 rounded-lg transition-colors shrink-0 touch-btn">
+                            <input type="checkbox" onchange="toggleStep(this)" class="step-checkbox rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-slate-900 w-4 h-4 cursor-pointer">
+                            <span class="text-xs font-medium text-slate-300 select-none">ပြီးပါပြီ</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-3 text-slate-300 text-xs sm:text-sm leading-relaxed">
+                        <p>
+                            ပျက်စီးနေသော Windows စနစ်ဖိုင်များကို ပြန်လည်စစ်ဆေးပြင်ဆင်ရန် SFC Scan ကို အသုံးပြုပါ -
+                        </p>
+
+                        <div class="bg-slate-950 rounded-lg p-3 border border-slate-800 font-mono text-xs flex items-center justify-between gap-2">
+                            <span class="text-cyan-400 font-bold break-all">sfc /scannow</span>
+                            <button onclick="copyText('sfc /scannow', this)" class="text-xs text-slate-400 hover:text-white px-2.5 py-1 bg-slate-900 rounded border border-slate-800 shrink-0 active:scale-95">Copy</button>
+                        </div>
+
+                        <p class="text-xs sm:text-sm text-slate-400">
+                            လုပ်ဆောင်ချက် <b>100%</b> ပြည့်သည်အထိ ခေတ္တစောင့်ဆိုင်းပါ။ Scan ဖတ်ပြီးပါက ကွန်ပျူတာကို Restart ပြုလုပ်ပါ။
+                        </p>
+                    </div>
+                </section>
+
+            </main>
+
+            <footer class="mt-6 sm:mt-10 pt-5 sm:pt-8 border-t border-slate-800/80 sm:pl-6">
+                <div class="bg-gradient-to-r from-slate-900 via-indigo-950/30 to-slate-900 border border-indigo-900/40 rounded-xl p-3.5 sm:p-5 text-slate-300 space-y-2">
+                    <div class="flex items-center gap-2 text-indigo-300 font-bold text-xs sm:text-sm">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                        <span>နောက်ဆုံး စစ်ဆေးရန် အဆင့်</span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        အထက်ပါ အဆင့်များ လုပ်ဆောင်ပြီးပါက <b>Settings &gt; Windows Update</b> သို့ ပြန်သွားပြီး <span class="text-white underline decoration-indigo-500 font-bold">Check for updates</span> ကို ပြန်လည် နှိပ်ပေးပါ။ Update များ ပုံမှန်အတိုင်း ပြန်လည်အလုပ်လုပ်သွားပါလိမ့်မည်။
+                    </p>
+                </div>
+
+                <div class="text-center text-[11px] text-slate-600 mt-5 font-mono">
+                    Windows Update Troubleshooting Guide • Mobile Optimized Edition
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification (positioned reliably for mobile screens) -->
+    <div id="toast" class="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-6 bg-slate-900 text-slate-100 px-4 py-3 rounded-xl shadow-2xl border border-slate-700 transform translate-y-20 opacity-0 transition-all duration-300 flex items-center justify-center sm:justify-start gap-2.5 z-50 text-xs pointer-events-none">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+        <span id="toastText">Clipboard သို့ ကူးယူပြီးပါပြီ!</span>
+    </div>
+
+    <script>
+        // Copy text helper supporting modern fallback for restricted iframe sandbox
+        function copyText(text, btnElement) {
+            let copySuccess = false;
+
+            // Primary strategy
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('Clipboard သို့ ကူးယူပြီးပါပြီ!');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
+            }
+
+            // Visual feedback on button
+            if (btnElement) {
+                const originalText = btnElement.innerText;
+                btnElement.innerText = 'Copied!';
+                btnElement.classList.add('text-emerald-400', 'border-emerald-500/50');
+                setTimeout(() => {
+                    btnElement.innerText = originalText;
+                    btnElement.classList.remove('text-emerald-400', 'border-emerald-500/50');
+                }, 1500);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Clipboard သို့ ကူးယူပြီးပါပြီ!');
+            } catch (err) {
+                showToast('ကူးယူခြင်း မအောင်မြင်ပါ');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // Copy all commands in step 3
+        function copyAllCommands() {
+            const commands = [
+                'net stop wuauserv',
+                'net stop bits',
+                'ren C:\\Windows\\SoftwareDistribution SoftwareDistribution.old',
+                'net start wuauserv',
+                'net start bits'
+            ].join('\n');
+
+            copyText(commands, null);
+            showToast('Command အားလုံးကို ကူးယူပြီးပါပြီ!');
+        }
+
+        // Checkbox step progress tracker
+        function toggleStep(checkbox) {
+            const card = checkbox.closest('.step-card');
+            if (checkbox.checked) {
+                card.classList.add('completed');
+            } else {
+                card.classList.remove('completed');
+            }
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.step-checkbox');
+            const checkedCount = document.querySelectorAll('.step-checkbox:checked').length;
+            const total = checkboxes.length;
+            const percentage = (checkedCount / total) * 100;
+
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').innerText = `${checkedCount}/${total}`;
+        }
+
+        // Toast display logic
+        let toastTimeout;
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toastText');
+            toastText.innerText = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
